@@ -13,6 +13,16 @@
 #include "utils.h"
 
 namespace fs = std::filesystem;
+inline void* my_alloc_func(HPDF_UINT size) {
+  // You can add custom allocation logic here
+  return malloc(size);
+}
+
+// Optional: Custom memory free function
+inline void my_free_func(void *aptr) {
+  // You can add custom deallocation logic here
+  free(aptr);
+}
 
 class ReaderThread {
   HPDF_Doc pdf_;
@@ -44,7 +54,7 @@ public:
   ReaderThread(std::vector<fs::path> chapters, const std::string &output_name) {
     output_name_ = output_name;
     chapters_ = chapters;
-    pdf_ = HPDF_New(error_handler, nullptr);
+    pdf_ = HPDF_NewEx(error_handler, nullptr, nullptr, 1024*1024*100, nullptr);
 
     if (!pdf_) {
       std::cout << "ERROR: Cannot create PdfDoc object" << std::endl;
